@@ -2,7 +2,7 @@ module FieldsOfBits
 
 export BitField, BitFields
 
-using Base: BitInteger
+using Base: BitUnsigned, BitInteger
 
 end  # BitFields
 
