@@ -4,9 +4,9 @@ struct BitsField{T<:Base.BitUnsigned} <: Unsigned
     nbits::UInt16
 end
 
-struct BitField{{T<:Base.BitUnsigned} <: Unsigned
+mutable struct BitField{{T<:Base.BitUnsigned} <: Unsigned
     x::T
-    field::BitsField
+    const field::BitsField
 end
 
 BitsField(::Type{T}, nbits::UInt16, offset::UInt16) where {T<:Base.BitUnsigned}
@@ -18,6 +18,13 @@ BitsField(::Type{T}, nbits::UInt16, offset::UInt16) where {T<:Base.BitUnsigned}
     end
 end
 
-isolate(x::BitField{T}) where {T<:Base.BitUnsigned}
+@inline isolate(x::BitField{T}) where {T<:Base.BitUnsigned} =
    (x.x & x.field.mask)
-end
+
+@inline intolsbs(x::BitField{T}) where {T<:Base.BitUnsigned} =
+    isolate(x) >> x.field.offset
+
+@inline fromlsbs(x::T, b::BitField{T}) where {T<:Base.BitUnsigned} =
+  b.x = (x << b.field.offset) & b.field.mask
+
+
