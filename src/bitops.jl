@@ -1,5 +1,8 @@
 using Base: bitrotate, leading_zeros, trailing_zeros
 
+@inline allzerobits(::Type{T}) where {T<:BitInteger} = zero(T)
+@inline allonebits(::Type{T}) where {T<:BitInteger} = ~zero(T)
+
 @inline masklsbs(n::T) where {T<:BitInteger} = (one(T) << n) - one(T)
 @inline masklsbs(::Type{T}, n) where {T<:BitInteger} = (one(T) << n) - one(T)
 
