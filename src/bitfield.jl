@@ -1,10 +1,15 @@
-struct BitField{T<:Base.BitUnsigned} <: Unsigned
+struct BitsField{T<:Base.BitUnsigned} <: Unsigned
     mask::T
     offset::UInt16
     nbits::UInt16
 end
 
-BitField(::Type{T}, nbits::UInt16, offset::UInt16) where {T<:Base.BitUnsigned}
+struct BitField{{T<:Base.BitUnsigned} <: Unsigned
+    x::T
+    field::BitsField
+end
+
+BitsField(::Type{T}, nbits::UInt16, offset::UInt16) where {T<:Base.BitUnsigned}
     if nbits == bitsof(T)
         BitField{T}(~zero(T), zero(UInt16), UInt16(bitsof(T))
     else
@@ -13,3 +18,6 @@ BitField(::Type{T}, nbits::UInt16, offset::UInt16) where {T<:Base.BitUnsigned}
     end
 end
 
+isolate(x::BitField{T}) where {T<:Base.BitUnsigned}
+   (x.x & x.field.mask)
+end
