@@ -61,6 +61,11 @@ end
 
 Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i) 
 
+function Base.setindex!(x::BitFields, idx::Integer, targetvalue::Integer)
+     val = targetvalue % eltype(x)
+     setfield!((getfield(x, :fields)[idx]), :content, val)
+end
+     
 function Base.getproperty(x::BitFields, nm::Symbol)
      if nm == :fields
           getfield(x, :fields)
