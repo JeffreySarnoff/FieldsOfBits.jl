@@ -63,10 +63,12 @@ function Base.getproperty(x::BitFields, nm::Symbol)
 end
 =#
 
+#=
 function Base.getindex(x::BitFields, nm::Symbol)
      idx = findfirst(x->name(x)==(nm), x.fields)
      !isnothing(idx) ? x.fields[idx] : idx
 end
+=#
 
 #=
 function Base.getindex(x::BitFields, idx::Integer)
