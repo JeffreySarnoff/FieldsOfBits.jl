@@ -61,6 +61,16 @@ end
 
 Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i) 
 
+@inline idxofname(x::BitFields, name::Symbol) =
+     findfirst(==(name), names(x))
+
+@inline function getnamedfield(x::BitFields, name::Symbol)
+     idx = idxofname(x, name)
+     isnothing(idx) && throw(ErrorException("name $(name) is not found"))
+     x.fields[idx]
+end
+
+
 #=
 function Base.getproperty(x::BitFields, nm::Symbol)
      idx = findfirst(x->name(x)==(nm), x.fields)
