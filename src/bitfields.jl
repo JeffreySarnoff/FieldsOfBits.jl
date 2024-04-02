@@ -61,6 +61,21 @@ end
 
 Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i) 
 
+function Base.getproperty(x::BitFields, nm::Symbol)
+     if nm == :fields
+          getfield(x, :fields)
+     else
+        idx = findfirst(x->name(x)==(nm), getfield(x, :fields))
+        if !isnothing(idx)
+            getfield(x, :Fields)[idx]
+        else
+           throw(ErrorException("name $(nm) is not found"))
+        end
+     end
+end
+
+
+#=
 @inline idxofname(x::BitFields, name::Symbol) =
      findfirst(==(name), names(x))
 
@@ -70,14 +85,6 @@ Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i)
      x.fields[idx]
 end
 
-#=
-function Base.getproperty(x::BitFields, nm::Symbol)
-     idx = findfirst(x->name(x)==(nm), x.fields)
-     !isnothing(idx) ? x.fields[idx] : idx
-end
-=#
-
-#=
 function Base.getindex(x::BitFields, nm::Symbol)
      idx = findfirst(x->name(x)==(nm), x.fields)
      !isnothing(idx) ? x.fields[idx] : idx
