@@ -63,8 +63,9 @@ end
 end
 
 @inline function set!(x::BitField{T}, content::T) where {T}
-    !validate(x.spec, content) && throw(DomainError("cannot set $(x) to $(content)"))
+    !validate(x.spec, content) && throw(DomainError("cannot set $(x.spec.nbits) bit field to $(content)"))
     x.content = content
+    x
 end
 
 function Base.show(io::IO, x::BitField)
