@@ -29,7 +29,12 @@ function canonical(nt::NamedTuple)
    snt = sort(nt)
    unsafe_overlap(snt) && throw(ErrorException("bitfields must not overlap"))
    uint = uintfor(snt)
-   (uint, snt) 
+   symbols = keys(snt)
+   uints = fill(uint, length(symbols))
+   bitwidths = map(length, values(snt))
+   offsets = map(first, values(snt)) .- 1
+   znt = zip(uints, symbols, bitwidths, offsets)
+   map(a->BitFieldSpec(a[1]; name=a[2], nbits=a[3], offset=a[4]), znt) 
 end
 
     
