@@ -1,6 +1,6 @@
 # FieldsOfBits.jl
 #### This package provides a clean way to define, access, and alter bitfields.
-#### Copyright  ©2024 by Jeffrey Sarnoff
+#### Copyright  ©2024 by Jeffrey Sarnoff <jeffrey.sarnoff@gmail.com>.
 ----
 
 A bitfield is a span of bits within an unsigned type, often a UInt32 or a UInt64 (UInt8, UInt16, UInt32, UInt64, UInt128 are supported).
