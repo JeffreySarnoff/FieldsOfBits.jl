@@ -35,7 +35,7 @@ function canonical(nt::NamedTuple)
    offsets = map(first, values(snt)) .- 1
    znt = zip(uints, symbols, bitwidths, offsets)
    fieldspecs = Tuple(map(a->BitFieldSpec(a[1]; name=a[2], nbits=a[3], offset=a[4]), znt))
-   BitFieldSpecs(fields)
+   BitFieldSpecs(fieldspecs)
 end
 
     
