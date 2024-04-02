@@ -67,7 +67,7 @@ function Base.getproperty(x::BitFields, nm::Symbol)
      else
         idx = findfirst(x->name(x)==(nm), getfield(x, :fields))
         if !isnothing(idx)
-            getfield(x, :Fields)[idx]
+            getfield(x, :fields)[idx]
         else
            throw(ErrorException("name $(nm) is not found"))
         end
