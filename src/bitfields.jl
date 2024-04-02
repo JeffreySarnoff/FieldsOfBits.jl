@@ -50,7 +50,10 @@ function Base.show(io::IO, x::BitFields{N, T}) where {N, T}
 end
 
 function Base.string(x::BitFields{N, T}) where {N, T}
-     join(map(x->string(x.content), x.fields), ", ")
+     names = map(x->name(x), x.fields)
+     values = map(x->Int64(content(x)), x.fields)
+     nt = NamedTuple{names}(values)
+     string(nt)
 end
 
 
