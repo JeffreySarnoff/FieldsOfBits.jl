@@ -81,15 +81,3 @@ function Base.setproperty!(x::BitFields, nm::Symbol, targetvalue::Integer)
      setfield!(getfield(x, :fields)[idx], :content, val)
 end
 
-#=
-function Base.getindex(x::BitFields, nm::Symbol)
-     idx = findfirst(x->name(x)==(nm), x.fields)
-     !isnothing(idx) ? x.fields[idx] : idx
-end
-=#
-
-#=
-function Base.getindex(x::BitFields, idx::Integer)
-     x.fields[idx]
-end
-=#
