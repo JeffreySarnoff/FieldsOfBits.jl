@@ -37,7 +37,7 @@ function Base.string(x::BitFieldSpec)
     mask = x.mask
     offset = Int16(x.offset)
     nbits = Int16(x.nbits)
-    name = n.name
+    name = x.name
     nt = (;name, mask, offset, nbits)
     string(nt)
 end
@@ -75,21 +75,16 @@ end
 
 @inline function unsafe_set!(x::BitField{T}, content::T) where {T}
     x.content = content
-end
-
-@inline function unsafe_set!(x::BitField{T}, content::Base.BitInteger) where {T}
-    unsafe_set!(x, content % T)
-end
-
-@inline function set!(x::BitField{T}, content::T) where {T}
-    !validate(x.spec, content) && throw(DomainError("cannot set $(x.spec.nbits) bit field to $(content)"))
-    x.content = content
     x
 end
 
-@inline function set!(x::BitField{T}, content::Base.BitInteger) where {T}
-    set!(x, content % T)
+@inline function set!(x::BitField{T}, content::T1) where {T,T1}
+    value = content % T
+    !validate(x.spec, value) && throw(DomainError("cannot set $(x.spec.nbits) bit field to $(value)"))
+    unsafe_set!(x, value)
+    x
 end
+
 
 function Base.show(io::IO, x::BitField)
     str = string(x)
