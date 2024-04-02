@@ -53,6 +53,10 @@ end
 
 content(x::BitField{T}) where {T} = x.content
 spec(x::BitField{T}) where {T} = x.spec
+mask(x::BitField{T}) where {T} = x.spec.mask
+offset(x::BitField{T}) where {T} = x.spec.offset
+nbits(x::BitField{T}) where {T} = x.spec.nbits
+name(x::BitField{T}) where {T} = x.spec.name
 Base.eltype(x::BitField{T}) where {T} = T
 
 @inline bitfield(x::BitField{T}) where {T} = x.content << x.spec.offset
