@@ -22,9 +22,9 @@ function BitFieldSpecs(::Type{T1};nbits::NTuple[N, T2}) where {T1<:Base.BitUnsig
      # lows = highs .- nbits .+ 1
      # fieldspans = map((lo,hi)->lo:hi, lows, highs)
      offsets = cumsum(nbits) .- nbits
-     map((offset, count)->BitFieldSpec(offset, count), offsets, nbits)
+     map((count, offset)->BitFieldSpec(count, offset), nbits, offsets)
 end
-     
+
 function Base.show(io::IO, x::BitFieldSpecs{N, T}) where {N, T}
     strs = join(map(string, x), '\n')
     show(io, strs) 
