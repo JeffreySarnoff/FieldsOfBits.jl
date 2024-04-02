@@ -3,5 +3,9 @@ author = ["Jeffrey A. Sarnoff <jeffrey.sarnoff@ieee.org>"]
 uuid = "8c45c84c-845c-478b-86e0-f3d4de43328d"
 version = "0.1.0"
 
+[deps]
+TupleTools = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
+
 [compat]
+TupleTools = "1.5"
 julia = "1.10"
