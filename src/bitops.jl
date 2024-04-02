@@ -1,4 +1,4 @@
-using Base: bitrotate, leading_zeros, trailing_zeros
+using Base: BitInteger, BitUnsigned, bitrotate, leading_zeros, trailing_zeros
 
 @inline bitsof(x) = sizeof(x) << 3
 
