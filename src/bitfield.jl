@@ -7,6 +7,7 @@ end
 mask(x::BitFieldSpec) = x.mask
 offset(x::BitFieldSpec) = x.offset
 nbits(x::BitFieldSpec) = x.nbits
+Base.eltype(x::BitFieldSpec{T}) where {T} = T
 
 Base.leading_zeros(x::BitFieldSpec) = leading_zeros(mask(x))
 Base.trailing_zeros(x::BitFieldSpec) = offset(x)
@@ -44,6 +45,7 @@ end
 
 content(x::BitField{T}) where {T} = x.content
 spec(x::BitField{T}) where {T} = x.spec
+Base.eltype(x::BitFiel{T}) where {T} = T
 
 @inline bitfield(x::BitField{T}) where {T} = x.content << x.spec.offset
 
