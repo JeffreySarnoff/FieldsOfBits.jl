@@ -26,10 +26,14 @@ function BitFieldSpecs(::Type{T1};nbits::NTuple{N, T2}) where {T1<:Base.BitUnsig
 end
 
 function Base.show(io::IO, x::BitFieldSpecs{N, T}) where {N, T}
-    strs = join(map(string, x), '\n')
-    show(io, strs) 
+    str = string(x)
+    print(io, str) 
 end
-     
+
+function Base.string(x::BitFieldSpecs{N, T}) where {N, T}
+     join(map(string, x.specs), '\n')
+end
+
 struct BitFields{N, T} <: Unsigned
     fields::NTuple{N, T}
 end
