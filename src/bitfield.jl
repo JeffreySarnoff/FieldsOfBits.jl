@@ -2,6 +2,7 @@ struct BitFieldSpec{T<:Base.BitUnsigned} <: Unsigned
     mask::T
     offset::UInt16
     nbits::UInt16
+    name::Symbol
 end
 
 mask(x::BitFieldSpec) = x.mask
