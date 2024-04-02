@@ -53,6 +53,7 @@ spec(x::BitField{T}) where {T} = x.spec
 Base.eltype(x::BitFiel{T}) where {T} = T
 
 @inline bitfield(x::BitField{T}) where {T} = x.content << x.spec.offset
+@inline bitfield(bfs::BitFieldSpec{T}, x::T) where {T} = (x & bfs.mask) >> bfs.offset
 
 Base.leading_zeros(x::BitField) = leading_zeros(spec(x))
 Base.trailing_zeros(x::BitField) = trailing_zeros(spec(x))
