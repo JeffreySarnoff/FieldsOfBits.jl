@@ -17,7 +17,7 @@ Base.trailing_zeros(x::BitFieldSpec) = offset(x)
 function BitFieldSpec(name::Symbol, mask::T) where {T<:Base.BitUnsigned}
      offset = UInt16(trailing_zeros(mask))
      nbits  = UInt16(trailing_ones(mask >> offset))
-     BitFieldSpec(mask, offset, nbits, name)
+     BitFieldSpec(mask, offset % UInt16, nbits % UInt16, name)
 end
 
 function BitFieldSpec(::Type{T}; name::Symbol, nbits, offset) where {T<:Base.BitUnsigned}
@@ -25,7 +25,7 @@ function BitFieldSpec(::Type{T}; name::Symbol, nbits, offset) where {T<:Base.Bit
     nbits == 0 && return throw(DomainError("nbits must be > 0"))
     nbits == bitsof(T) && return ones(T)
     mask = (one(T) << nbits - one(T)) << offset
-    BitFieldSpec(mask, offset, nbits, name)
+    BitFieldSpec(mask, offset % UInt16, nbits % UInt16, name)
 end
 
 function Base.show(io::IO, x::BitFieldSpec)
