@@ -85,7 +85,6 @@ end
     x
 end
 
-
 function Base.show(io::IO, x::BitField)
     str = string(x)
     print(io, str)
