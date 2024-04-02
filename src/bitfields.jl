@@ -70,7 +70,6 @@ Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i)
      x.fields[idx]
 end
 
-
 #=
 function Base.getproperty(x::BitFields, nm::Symbol)
      idx = findfirst(x->name(x)==(nm), x.fields)
