@@ -69,7 +69,7 @@ function Base.getproperty(x::BitFields, nm::Symbol)
         if !isnothing(idx)
             getfield(x, :fields)[idx]
         else
-           throw(ErrorException("name $(nm) is not found"))
+           throw(ErrorException("fieldname $(nm) is not found"))
         end
      end
 end
