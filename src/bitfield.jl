@@ -15,10 +15,10 @@ Base.trailing_zeros(x::BitFieldSpec) = offset(x)
 function BitFieldSpec(mask::T) where {T<:Base.BitUnsigned}
      offset = UInt16(trailing_zeros(mask))
      nbits  = UInt16(trailing_ones(mask >> offset))
-     BitFieldSpec(mask, offset, nbits)
+     BitFieldSpec(T, nbits, offset)
 end
 
-function BitFieldSpec(::Type{T}; offset, nbits) where {T<:Base.BitUnsigned}
+function BitFieldSpec(::Type{T}; nbits, offset) where {T<:Base.BitUnsigned}
     (bitsof(T) < nbits + offset) && throw(DomainError("$(bitsof(T)) < offset + nbits ($(offset) + $(nbits))"))
     nbits == 0 && return throw(DomainError("nbits must be > 0"))
     nbits == bitsof(T) && return ones(T)
