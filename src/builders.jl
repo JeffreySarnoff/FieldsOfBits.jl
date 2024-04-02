@@ -18,9 +18,18 @@ function unsafe_overlap(nt::NamedTuple)
     any(map(x->(x<1), increments))
 end
 
+const UINTs = (UInt8, UInt8, UInt8, UInt16, UInt32, UInt64, UInt128)
+        
+function uintfor(nt::NamedTuple)
+    mx = last(values(snt)[end])
+    UINTs[ceil(Int, log2(mx))]
+end
+
 function canonical(nt::NamedTuple)
    snt = sort(nt)
    unsafe_overlap(snt) && throw(ErrorException("bitfields must not overlap"))
-   snt
+   uint = uintfor(snt)
+   (uint, snt) 
 end
-        
+
+    
