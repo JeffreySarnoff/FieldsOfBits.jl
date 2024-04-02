@@ -47,6 +47,8 @@ Base.eltype(x::BitFields) = eltype(x[1])
 
 BitFields(fields::Vararg{BitField}) = BitFieldSpecs(fields)
 
+BitFields(bfs::BitFieldSpecs) = map(BitField, bfs.specs)
+
 function Base.show(io::IO, x::BitFields{N, T}) where {N, T}
     str = string(x)
     print(io, str) 
