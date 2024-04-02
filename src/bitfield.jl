@@ -45,6 +45,8 @@ end
 content(x::BitField{T}) where {T} = x.content
 spec(x::BitField{T}) where {T} = x.spec
 
+@inline bitfield(x::BitField{T}) where {T} = x.content << x.spec.offset
+
 Base.leading_zeros(x::BitField) = leading_zeros(spec(x))
 Base.trailing_zeros(x::BitField) = trailing_zeros(spec(x))
 
@@ -56,20 +58,19 @@ end
     x.content
 end
 
-@inline function unsafe_set!(x::BitField(T), content::T) where {T}
+@inline function unsafe_set!(x::BitField{T}, content::T) where {T}
     x.content = content
 end
 
-@inline function Base.set!(x::BitField(T), content::T) where {T}
+@inline function set!(x::BitField{T}, content::T) where {T}
     !validate(x.spec, content) && throw(DomainError("cannot set $(x) to $(content)"))
     x.content = content
 end
 
 function Base.show(io::IO, x::BitField)
-    content = x.val
-    quantity = content << x.spec.offset
-    mask = x.spec.mask
-    nt = (;quantity, content, mask)
+    content = x.content
+    field = bitfield(x)
+    nt = (;field, content)
     show(io, nt)
 end
 
