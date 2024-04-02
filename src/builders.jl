@@ -25,7 +25,7 @@ function uintfor(nt::NamedTuple)
     UINTs[ceil(Int, log2(mx))]
 end
 
-function canonical(nt::NamedTuple)
+function BitFieldSpecs(nt::NamedTuple)
    snt = sort(nt)
    unsafe_overlap(snt) && throw(ErrorException("bitfields must not overlap"))
    uint = uintfor(snt)
@@ -38,4 +38,6 @@ function canonical(nt::NamedTuple)
    BitFieldSpecs(fieldspecs)
 end
 
-    
+function BitFields(nt::NamedTuple)
+   fieldspecs = BitFieldSpecs(nt)
+end
