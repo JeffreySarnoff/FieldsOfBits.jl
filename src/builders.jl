@@ -39,5 +39,5 @@ function BitFieldSpecs(nt::NamedTuple)
 end
 
 function BitFields(nt::NamedTuple)
-   fieldspecs = BitFieldSpecs(nt)
+   BitFields(BitFieldSpecs(nt))
 end
