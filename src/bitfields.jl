@@ -17,7 +17,7 @@ function BitFieldSpecs(masks::NTuple{N,T}) where {N, T<:Base.BitUnsigned}
      BitFieldSpecs(specs)
 end
 
-function BitFieldSpecs(::Type{T1};nbits::NTuple[N, T2}) where {T1<:Base.BitUnsigned, N,T<:Integer}
+function BitFieldSpecs(::Type{T1};nbits::NTuple{N, T2}) where {T1<:Base.BitUnsigned, T2, N}
      # highs = cumsum(nbits)
      # lows = highs .- nbits .+ 1
      # fieldspans = map((lo,hi)->lo:hi, lows, highs)
