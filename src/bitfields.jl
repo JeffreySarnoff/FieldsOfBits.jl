@@ -56,6 +56,8 @@ function Base.string(x::BitFields{N, T}) where {N, T}
      string(nt)
 end
 
+Base.getindex(x::BitFields, i::Integer) = getindex(x.fields, i) 
+
 #=
 function Base.getproperty(x::BitFields, nm::Symbol)
      idx = findfirst(x->name(x)==(nm), x.fields)
