@@ -4,6 +4,8 @@ end
 
 specs(x::BitFieldSpecs) = x.specs
 nspecs(x::BitFieldSpecs{N,T}) where {N,T} = N
+Base.names(x::BitFieldSpecs) = map(name, x.specs)
+
 Base.eltype(x::BitFieldSpecs) = eltype(x[1])
 
 BitFieldSpecs(structs::Vararg{BitFieldSpec}) = BitFieldSpecs(structs)
@@ -40,6 +42,7 @@ end
 
 fields(x::BitFields) = x.fields
 nfields(x::BitFields{N,T}) where {N,T} = N
+Base.names(x::BitFields) = map(x->x.spec.name, x.fields)
 Base.eltype(x::BitFields) = eltype(x[1])
 
 BitFields(fields::Vararg{BitField}) = BitFieldSpecs(fields)
