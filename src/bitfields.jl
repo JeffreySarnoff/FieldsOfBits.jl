@@ -74,8 +74,8 @@ function Base.getproperty(x::BitFields, nm::Symbol)
      end
 end
 
-function Base.setproperty!(x::BitFields{N,T}, nm::Symbol, value::Integer) where {N,T}
-     val = value % T
+function Base.setproperty!(x::BitFields, nm::Symbol, targetvalue::Integer)
+     val = targetvalue % eltype(x)
      idx = findfirst(x->name(x)==(nm), getfield(x, :fields))
      isnothing(idx) && throw(ErrorException("fieldname $(nm) is not found"))
      setfield!(getfield(x, :fields)[idx], :content, val)
