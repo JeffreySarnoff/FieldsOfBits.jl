@@ -27,11 +27,16 @@ function BitFieldSpec(::Type{T}; offset, nbits) where {T<:Base.BitUnsigned}
 end
 
 function Base.show(io::IO, x::BitFieldSpec)
+    str = string(x)
+    print(io, str)
+end
+
+function Base.string(x::BitFieldSpec)
     mask = x.mask
-    offset = x.offset
-    nbits = x.nbits
+    offset = Int16(x.offset)
+    nbits = Int16(x.nbits)
     nt = (;mask, offset, nbits)
-    show(io, nt)
+    string(nt)
 end
 
 @inline function validate(bfs::BitFieldSpec{T}, x::T) where {T}
@@ -64,17 +69,30 @@ end
     x.content = content
 end
 
+@inline function unsafe_set!(x::BitField{T}, content::Base.BitInteger) where {T}
+    unsafe_set(x, content % T)
+end
+
 @inline function set!(x::BitField{T}, content::T) where {T}
     !validate(x.spec, content) && throw(DomainError("cannot set $(x.spec.nbits) bit field to $(content)"))
     x.content = content
     x
 end
 
+@inline function set!(x::BitField{T}, content::Base.BitInteger) where {T}
+    set!(x, content % T)
+end
+
 function Base.show(io::IO, x::BitField)
-    content = x.content
+    str = string(x)
+    print(io, str)
+end
+
+function Base.string(x::BitField)
+    content = x.spec.nbits < 64 ? Int64(x.content) : Int128(x.content)
     field = bitfield(x)
     nt = (;field, content)
-    show(io, nt)
+    string(nt)
 end
 
 @inline isolate(x::BitField{T}) where {T<:Base.BitUnsigned} =
