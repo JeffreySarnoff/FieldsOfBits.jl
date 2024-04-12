@@ -7,7 +7,7 @@
 A bitfield is a span of bits within an unsigned type, often a UInt32 or a UInt64 (UInt8, UInt16, UInt32, UInt64, UInt128 are supported).
 Typically, a sequence of bitfields is specified and the unsigned type used is the smallest one that accommodates all of the bitfields.
 
-Bitfields have names. These names are of type Symbol. Any bitfield specification includes the name.
+Bitfields have names. These names are of type Symbol. Every bitfield specification has its name.  The name of the bitfield is used to extract the field content from the rest of the [usually unsigned] binary information and to reset the content within the rest of the binary information.
 
 - One way to specify a bitfield is to give its *bitwidth*, the count of bits spanned, and its *offset*, the shift up from the least significant bit.
 - Another way to specify a bitfield is to give its *bitmask*, the sequence of bits (all set to 0b1) that covers the bitfield exactly, in its intended position.
