@@ -1,6 +1,6 @@
 # FieldsOfBits.jl
 #### This package provides a clean way to define, access, and alter bitfields.
-#### Copyright  ©2024 by Jeffrey A. Sarnoff \<jeffrey.sarnoff@ieee.org\>.
+#### Copyright  © 2024 by Jeffrey A. Sarnoff \<jeffrey.sarnoff@ieee.org\>.
 ##### Released under the MIT License.
 ----
 
