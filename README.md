@@ -9,8 +9,8 @@ Typically, a sequence of bitfields is specified and the unsigned type used is th
 
 Bitfields have names. These names are of type Symbol. Any bitfield specification includes the name.
 
-- One way to specify a bitfield is to give its `bitwidth`, the count of bits spanned, and its `offset`, the shift up from the least significant bit.
-- Another way to specify a bitfield is to give its `bitmask`, the sequence of 1 bits that covers the bitfield exactly, in its intended position.
+- One way to specify a bitfield is to give its 'bitwidth', the count of bits spanned, and its 'offset', the shift up from the least significant bit.
+- Another way to specify a bitfield is to give its 'bitmask', the sequence of 1 bits that covers the bitfield exactly, in its intended position.
 
 The targeted unsigned type, the type wherein the bitfield is to be placed, may be specified explicitly. 
 - If unspecified, then the smallest unsigned type that accommodates [all] the bitfield[s] is used.
