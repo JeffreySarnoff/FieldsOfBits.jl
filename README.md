@@ -17,6 +17,6 @@ The targeted unsigned type, the type wherein the bitfield is to be placed, may b
 
 ----
 
-![descriptive alt text](https://github.com/JeffreySarnoff/FieldsOfBits.jl/tree/main/assets/images/BitFieldsA.svg "BitFields (a)")
+(https://github.com/JeffreySarnoff/FieldsOfBits.jl/tree/main/assets/images/BitFieldsA.svg)
 
 
