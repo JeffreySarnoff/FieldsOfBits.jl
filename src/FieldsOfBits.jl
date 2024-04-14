@@ -1,6 +1,6 @@
 module FieldsOfBits
 
-export BitField, BitFields
+export BitField, BitFields, NT
 
 using Base: BitUnsigned, BitInteger
 import TupleTools as TT

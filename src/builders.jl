@@ -1,3 +1,12 @@
+"""
+    NT( symnames::NTuple{N, Symbol}, ::T) where {N,T}
+
+NT((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
+"""
+@inline function NT(symnames::NTuple{N, Symbol}, @nospecialize(::Type{T})) where {N,T}
+    NamedTuple{symnames, NTuple{N,T}}
+end
+
 function Base.sort(nt::NamedTuple)
     syms = keys(nt)
     vals = values(nt)
