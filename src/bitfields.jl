@@ -19,12 +19,12 @@ function BitFieldSpecs(masks::NTuple{N,T}) where {N, T<:Base.BitUnsigned}
      BitFieldSpecs(specs)
 end
 
-function BitFieldSpecs(::Type{T1};nbits::NTuple{N, T2}) where {T1<:Base.BitUnsigned, T2, N}
-     # highs = cumsum(nbits)
-     # lows = highs .- nbits .+ 1
+function BitFieldSpecs(::Type{T1};width::NTuple{N, T2}) where {T1<:Base.BitUnsigned, T2, N}
+     # highs = cumsum(width)
+     # lows = highs .- width .+ 1
      # fieldspans = map((lo,hi)->lo:hi, lows, highs)
-     offsets = cumsum(nbits) .- nbits
-     map((count, offset)->BitFieldSpec(count, offset), nbits, offsets)
+     shifts = cumsum(width) .- width
+     map((count, shift)->BitFieldSpec(count, shift), width, shifts)
 end
 
 function Base.show(io::IO, x::BitFieldSpecs{N, T}) where {N, T}

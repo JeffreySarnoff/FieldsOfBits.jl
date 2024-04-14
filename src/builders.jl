@@ -27,9 +27,9 @@ function BitFieldSpecs(nt::NamedTuple)
    symbols = keys(snt)
    uints = fill(uint, length(symbols))
    bitwidths = map(length, values(snt))
-   offsets = map(first, values(snt)) .- 1
-   znt = zip(uints, symbols, bitwidths, offsets)
-   fieldspecs = Tuple(map(a->BitFieldSpec(a[1]; name=a[2], nbits=a[3], offset=a[4]), znt))
+   shifts = map(first, values(snt)) .- 1
+   znt = zip(uints, symbols, bitwidths, shifts)
+   fieldspecs = Tuple(map(a->BitFieldSpec(a[1]; name=a[2], width=a[3], shift=a[4]), znt))
    BitFieldSpecs(fieldspecs)
 end
 
