@@ -76,12 +76,6 @@ Base.trailing_zeros(x::BitField) = trailing_zeros(spec(x))
 @inline get_bitfield(x::BitField{T}) where {T} =
      (content(x) >> shift(x)) & masklsbs(x)
 
-
-
-function BitField(spec::BitFieldSpec{T}) where {T}
-    BitField(zero(T), spec)
-end
-
 @inline function Base.get(x::BitField{T}) where {T}
     x.content
 end
