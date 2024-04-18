@@ -1,6 +1,6 @@
 name = "FieldsOfBits"
 author = ["Jeffrey A. Sarnoff <jeffrey.sarnoff@ieee.org>"]
-uuid = "8c45c84c-845c-478b-86e0-f3d4de43328d"
+uuid = "a0639507-46c3-49fc-9bf1-de2eca3b28da"
 version = "0.1.0"
 
 [deps]
