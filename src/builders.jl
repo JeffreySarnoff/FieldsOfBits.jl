@@ -3,7 +3,7 @@
 
 NT((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
 """
-@inline function NT(symnames::NTuple{N, Symbol}, @nospecialize(::Type{T})) where {N,T}
+@inline function NT(symnames::NTuple{N, Symbol}, ::Type{T}) where {N,T}
     NamedTuple{symnames, NTuple{N,T}}
 end
 

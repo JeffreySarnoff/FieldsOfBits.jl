@@ -1,3 +1,8 @@
+"""
+    BitFieldSpec()
+
+
+"""
 struct BitFieldSpec{T<:Base.BitUnsigned} <: Unsigned
     mask::T
     shift::UInt16
