@@ -17,15 +17,35 @@ Base.eltype(x::BitField{T}) where {T} = T
 Base.leading_zeros(x::BitField) = leading_zeros(spec(x))
 Base.trailing_zeros(x::BitField) = trailing_zeros(spec(x))
 
+"""
+    iso_bitfield(x::BitField)
+
+isolate a bitfield
+"""
 @inline iso_bitfield(x::BitField{T}) where {T} =
     (content(x) & mask(x))
 
+"""
+    set_bitfield!(x::BitField)
+
+set a bitfield's value
+"""
 @inline set_bitfield!(x::BitField{T}, content::T) where {T} =
      (content & masklsbs(x)) << x.spec.shift
 
+"""
+    get_bitfield(x::BitField)
+
+retrieve a bitfield into lsbs
+"""
 @inline get_bitfield(x::BitField{T}) where {T} =
      (content(x) >> shift(x)) & masklsbs(x)
 
+"""
+    get(x::BitField)
+
+retrieve a bitfield in place
+"""
 @inline function Base.get(x::BitField{T}) where {T}
     x.content
 end
