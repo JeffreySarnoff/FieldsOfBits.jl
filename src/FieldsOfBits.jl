@@ -6,6 +6,7 @@ using Base: BitUnsigned, BitInteger
 import TupleTools as TT
 
 include("bitops.jl")
+include("bitfieldspec.jl")
 include("bitfield.jl")
 include("bitfields.jl")
 include("builders.jl")
