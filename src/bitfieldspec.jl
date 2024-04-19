@@ -1,8 +1,3 @@
-"""
-    BitFieldSpec()
-
-
-"""
 struct BitFieldSpec{T<:Base.BitUnsigned} <: Unsigned
     mask::T
     shift::UInt16
@@ -21,10 +16,10 @@ Base.eltype(x::BitFieldSpec{T}) where {T} = T
 Base.leading_zeros(x::BitFieldSpec) = leading_zeros(mask(x))
 Base.trailing_zeros(x::BitFieldSpec) = shift(x)
 
-function BitFieldSpec(::Type{T}, name::Symbol, mask::T) where {T<:Base.BitUnsigned}
+function BitFieldSpec(name::Symbol, mask::T) where {T<:Base.BitUnsigned}
     shift = UInt16(trailing_zeros(mask))
     width = UInt16(trailing_ones(mask >> shift))
-    BitFieldSpec(bit mask, shift % UInt16, width % UInt16, name)
+    BitFieldSpec(mask, shift % UInt16, width % UInt16, name)
 end
 
 function BitFieldSpec(::Type{T}; name::Symbol, width, shift) where {T<:Base.BitUnsigned}

@@ -3,6 +3,13 @@ mutable struct BitField{T<:Base.BitUnsigned} <: Unsigned
     const spec::BitFieldSpec
 end
 
+function BitField(name::Symbol, mask::T) where {T<:Base.BitUnsigned}
+    shift = UInt16(trailing_zeros(mask))
+    width = UInt16(trailing_ones(mask >> shift))
+    spec = BitFieldSpec(mask, shift % UInt16, width % UInt16, name)
+    BitField(zero(T), spec)
+end
+
 content(x::BitField{T}) where {T} = x.content
 
 spec(x::BitField{T}) where {T} = x.spec
@@ -68,9 +75,7 @@ function Base.show(io::IO, x::BitField)
 end
 
 function Base.string(x::BitField)
-    content = x.spec.width < 64 ? Int64(x.content) : Int128(x.content)
-    field = bitfield(x)
-    nt = (;field, content)
+    nt = (value=(name(x), content(x)), field=spec(x))
     string(nt)
 end
 
