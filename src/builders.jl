@@ -1,16 +1,19 @@
 """
-    NT( symnames::NTuple{N, Symbol}, ::T) where {N,T}
+    NamedNTuple( symnames::NTuple{N, Symbol}, ::T) where {N,T}
 
-NT((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
+NamedNTuple((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
 """
-@inline function NT(symnames::NTuple{N, Symbol}, ::Type{T}) where {N,T}
+function NamedNTuple(symnames::NTuple{N, Symbol}, ::Type{T}) where {N,T}
     NamedTuple{symnames, NTuple{N,T}}
 end
 
-function Base.sort(nt::NamedTuple)
+function Base.sort(nt::NamedTuple; rev::Bool=false)
     syms = keys(nt)
     vals = values(nt)
     sperm = TT.sortperm(vals)
+    if rev
+        sperm = reverse(sperm)
+    end
     sortedsyms = Tuple([syms[i] for i in sperm])
     sortedvals = [vals[i] for i in sperm]
     NamedTuple{sortedsyms}(sortedvals)
@@ -18,7 +21,7 @@ end
 
 # UNCHECKED PRECONDITION nt = sort(nt)
 function unsafe_overlap(nt::NamedTuple)
-    increments = first.(values(snt))[2:end] .- last.(values(snt))[1:end-1]
+    increments = first.(values(nt))[2:end] .- last.(values(nt))[1:end-1]
     any(map(x->(x<1), increments))
 end
 

@@ -1,6 +1,6 @@
 module FieldsOfBits
 
-export BitField, Carrier,
+export BitMask, BitField, Carrier,
        BitFields, NT
 
 using Base: BitUnsigned, BitInteger
@@ -9,27 +9,23 @@ import TupleTools as TT
 bitsof(::Type{T}) = sizeof(T) << 3
 bitsof(x::T) where {T} = sizeof(T) << 3
 
-abstract type Carrier{T<:Unsigned} end
+abstract type Carrier{T<:BitUnsigned} end
 
-struct BitField{T} <: Carrier{T}
+struct BitMask{T<:BitUnsigned}
     mask::T
-    nbits::UInt16
-    shift::UInt16
 end
 
-mask(@nospecialize(x::BitField)) = x.mask
-nbits(@nospecialize(x::BitField)) = x.nbits
-shift(@nospecialize(x::BitField)) = x.shift
+mask(@nospecialize(x::BitMask)) = x.mask
+shift(@nospecialize(x::BitMask)) = trailing_zeros(x.mask)
+nbits(x::BitMask{T}) where {T} = bitsof(T) - leading_zeros(x.mask >> trailing_zeros(x.mask))
+masklow(@nospecialize(x::BitMask)) = x.mask >> trailing_zeros(x.mask)
+unmask(@nospecialize(x::BitMask)) = ~x.mask
+unmasklow(@nospecialize(x::BitMask)) = ~masklow(x)
 
-Base.eltype(x::BitField{T}) where {T} = T
+Base.eltype(x::BitMask{T}) where {T} = T
 
-function BitField(mask::T) where {T<:BitUnsigned}
-    shift = trailing_zeros(mask) % UInt16
-    nbits = (bitsof(T) - leading_zeros(mask >> shift)) % UInt16
-    BitField(mask, nbits, shift)
-end
 
-function BitField(nbits::T, shift::T) where {T<:Integer}
+function BitMask(nbits::T, shift::T) where {T<:Integer}
     nbits > 0 || throw(DomainError("nbits ($nbits) must be in (0..128]"))
     shift >= 0 || throw(DomainError("shift ($shift) must be in [0..127]"))
     hibit = nbits + shift
@@ -49,11 +45,35 @@ function BitField(nbits::T, shift::T) where {T<:Integer}
                end
     mask = ~zero(masktype) >> (bitsof(masktype) - nbits)
     mask = mask << shift
-    BitField(mask, nbits % UInt16, shift % UInt16)
+    BitMask(mask)
 end
 
+struct BitField{T<:BitUnsigned}
+     mask::T
+     name::Symbol
+end
 
+BitField(name::Symbol, mask::T) where {T<:BitUnsigned} =
+    BitField(mask, name)
 
+BitMask(x::BitField{T}) where {T} =
+    BitMask(x.mask)
+
+BitField(name::Symbol, mask::BitMask{T}) where {T} =
+    BitField(mask.mask, name)
+
+BitField(mask::BitMask{T}, name::Symbol) where {T} =
+    BitField(mask.mask, name)
+
+mask(@nospecialize(x::BitField)) = x.mask
+name(@nospecialize(x::BitField)) = x.name
+shift(@nospecialize(x::BitField)) = trailing_zeros(x.mask)
+nbits(x::BitField{T}) where {T} = bitsof(T) - leading_zeros(x.mask >> trailing_zeros(x.mask))
+masklow(@nospecialize(x::BitField)) = x.mask >> trailing_zeros(x.mask)
+unmask(@nospecialize(x::BitField)) = ~x.mask
+unmasklow(@nospecialize(x::BitField)) = ~masklow(x)
+
+Base.eltype(x::BitField{T}) where {T} = T
 
 include("bitops.jl")
 include("bitfieldspec.jl")
