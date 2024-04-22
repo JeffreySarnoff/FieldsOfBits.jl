@@ -1,72 +1,56 @@
-mutable struct BitField{T<:Base.BitUnsigned} <: Unsigned
-    content::T
-    const spec::BitFieldSpec
+surrounding_zeros(x) = leading_zeros(x) + trailing_zeros(x)
+
+"""
+    mutable struct BitField
+
+- mutable field `value`
+- const field `mask`
+"""
+mutable struct BitField{T<:Base.BitUnsigned}
+    value::T
+    const mask::T
 end
 
-function BitField(name::Symbol, mask::T) where {T<:Base.BitUnsigned}
-    shift = UInt16(trailing_zeros(mask))
-    width = UInt16(trailing_ones(mask >> shift))
-    spec = BitFieldSpec(mask, shift % UInt16, width % UInt16, name)
-    BitField(zero(T), spec)
+value(x::BitField) = x.value
+mask(x::BitField) = x.mask
+shift(x::BitField) = trailing_zeros(mask(x))
+masklsbs(x::BitField) = mask(x) >> shift(x)
+width(x::BitField{T}) where {T} = bitsof(T) - surrounding_zeros(mask(x))
+
+BitField(mask::T) where {T<:Base.BitUnsigned} =
+    BitField{T}(zero(T), mask)
+
+function Base.copy(x::BitField{T}) where {T}
+    bf = BitField(mask(x))
+    bf.value = x.value
+    bf
 end
 
-content(x::BitField{T}) where {T} = x.content
+"""
+    utype(_)
 
-spec(x::BitField{T}) where {T} = x.spec
-mask(x::BitField{T}) where {T} = x.spec.mask
-shift(x::BitField{T}) where {T} = x.spec.shift
-masklsbs(x::BitField{T}) where {T} = masklsbs(x.spec)
-width(x::BitField{T}) where {T} = x.spec.width
-name(x::BitField{T}) where {T} = x.spec.name
-
-Base.eltype(x::BitField{T}) where {T} = T
-
-Base.leading_zeros(x::BitField) = leading_zeros(spec(x))
-Base.trailing_zeros(x::BitField) = trailing_zeros(spec(x))
+unsigned type
+"""
+utype(x::BitField{T}) where {T} = T
 
 """
-    iso_bitfield(x::BitField)
+    getvalue(x::BitField)
 
-isolate a bitfield
+obtain value(x) shifted into the lsbs
 """
-@inline iso_bitfield(x::BitField{T}) where {T} =
-    (content(x) & mask(x))
-
-"""
-    set_bitfield!(x::BitField)
-
-set a bitfield's value
-"""
-@inline set_bitfield!(x::BitField{T}, content::T) where {T} =
-     (content & masklsbs(x)) << x.spec.shift
-
-"""
-    get_bitfield(x::BitField)
-
-retrieve a bitfield into lsbs
-"""
-@inline get_bitfield(x::BitField{T}) where {T} =
-     (content(x) >> shift(x)) & masklsbs(x)
-
-"""
-    get(x::BitField)
-
-retrieve a bitfield in place
-"""
-@inline function Base.get(x::BitField{T}) where {T}
-    x.content
+@inline function getvalue(x::BitField{T}) where {T}
+    (value(x) & mask(x)) >> trailing_zeros(mask(x))
 end
 
-@inline function unsafe_set!(x::BitField{T}, content::T) where {T}
-    x.content = content
-    x
-end
+"""
+    setvalue!(x::BitField, newvalue)
 
-@inline function set!(x::BitField{T}, content::T1) where {T,T1}
-    value = content % T
-    !validate(x.spec, value) && throw(DomainError("cannot set $(x.spec.width) bit field to $(value)"))
-    unsafe_set!(x, value)
-    x
+shift the newvalue into position, replace value(x)
+"""
+@inline function setvalue!(x::BitField{T}, newvalue) where {T}
+    newval = isa(newvalue, T) ? newvalue : convert(T, newvalue)
+    newval = (newval & (mask(x) >> trailing_zeros(mask(x))))
+    x.value = newval << trailing_zeros(mask(x))
 end
 
 function Base.show(io::IO, x::BitField)
@@ -75,8 +59,15 @@ function Base.show(io::IO, x::BitField)
 end
 
 function Base.string(x::BitField)
-    nt = (value=(name(x), content(x)), field=spec(x))
-    string(nt)
+    string("BitField(", hexstring(value(x)), ")")
 end
 
+const zerostr = "00000000000000000000000000000000"
 
+function hexstring(x::Unsigned)
+    hexstr = string(x, base=16)
+    nhexdigits = length(hexstr)
+    nzeros = max(2, nextpow(2, nhexdigits)) - nhexdigits
+    zs = zerostr[1:nzeros]
+    "0x" * zs * hexstr
+end

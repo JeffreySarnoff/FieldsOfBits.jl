@@ -6,8 +6,12 @@ export BitMask, BitField, Carrier,
 using Base: BitUnsigned, BitInteger
 import TupleTools as TT
 
-bitsof(::Type{T}) = sizeof(T) << 3
-bitsof(x::T) where {T} = sizeof(T) << 3
+bitsof(::Type{T}) where {T} = sizeof(T) << 3
+bitsof(x::T) where {T} = bitsof(T)
+
+include("bitops.jl")
+include("bitfield.jl")
+
 
 abstract type Carrier{T<:BitUnsigned} end
 
@@ -75,9 +79,6 @@ unmasklow(@nospecialize(x::BitField)) = ~masklow(x)
 
 Base.eltype(x::BitField{T}) where {T} = T
 
-include("bitops.jl")
-include("bitfieldspec.jl")
-include("bitfield.jl")
 include("bitfields.jl")
 include("builders.jl")
 

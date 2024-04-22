@@ -7,14 +7,87 @@
 
 ```
 bitsof(x) = sizeof(x) * 8
+surrounding_zeros(x) = leading_zeros(x) + trailing_zeros(x)
 
-struct BitField{T<:Base.BitUnsigned}
-    bitmask::T
-    name::Symbol
+struct BitMask{T<:Base.BitUnsigned}
+    mask::T
+    shift::Int16
+    nbits::Int16
 end
 
-bitmask(bitfield) = bitfield.bitmask
-name(bitfield) = bitfield.name
+BitMask(mask::T, shift::I, nbits::I) <: Integer =
+    BitMask(mask, shift%Int16, nbits%Int16)
+
+"""
+    mask(_)
+
+unsigned content with adjacent 1-bits as a mask
+"""
+mask(x::BitMask) = x.bitmask
+
+"""
+    shift(_)
+
+positional count relative to lsb 
+"""
+shift(x::BitMask) = x.shift
+
+"""
+    nbits(_)
+
+number of bits 
+"""
+nbits(x::BitMask) = x.nbits
+
+"""
+    utype(_)
+
+unsigned type
+"""
+utype(x::BitMask{T}) where {T} = T
+
+"""
+    mutable struct BitField
+
+- mutable field `value`
+- const field `mask`
+"""
+mutable struct BitField{T<:Base.BitUnsigned}
+    value::T
+    const mask::T
+end
+
+mask(x::BitField)  = x.mask
+value(x::BitField) = x.value
+
+"""
+    getvalue(x::BitField)
+
+obtain value(x) shifted into the lsbs
+"""
+@inline function getvalue(x::BitField{T}) where {T}
+    (value(x) & mask(x)) >> trailing_zeros(mask(x))
+end
+
+"""
+    setvalue!(x::BitField, newvalue)
+
+shift the newvalue into position, replace value(x)
+"""
+@inline function setvalue!(x::BitField{T}, newvalue::T) where {T}
+    newval = (newvalue & (mask(x) >> trailing_zeros(mask(x))))
+    x.value = newvalye << trailing_zeros(mask(x))
+end
+
+"""
+    unsafe_setvalue!(x::BitField, newvalue)
+
+replace value(x) with the newvalue as positioned
+"""
+@inline function unsafe_setvalue!(x::BitField{T}, newvalue::T) where {T}
+    x.value = newvalue & mask(x)
+end
+
 ```
 
 ###
@@ -23,21 +96,21 @@ name(bitfield) = bitfield.name
     ---------------------------------
     | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
     ---------------------------------
-      7   6   5   4   3   2   1   0      offset (gives each bit position)
+      7   6   5   4   3   2   1   0     (offset from lsb, 0-based)
 ```
 - The bitmask for this bitfield is `0b1110_0000`.
 - The bitwidth of this bitfield is `3`, the number of bits spanned.
-- The offset of this bitfield is `5`, the position of its lsb within the byte.
+- The offset of this bitfield is `5`, the position of the field's lsb.
+- The Carrier of this bitfield is the type `UInt8`.
 
 ```
-offset(bitfield)   = offset(bitmask(bitfield))
-bitwidth(bitfield) = bitwidth(bitmask(bitfield))
+offset(x::BitField)   = offset(bitmask(x))
+bitwidth(x::BitField) = bitwidth(bitmask(x))
+bitstype(x::BitField) = eltype(x)
 
-offset(bitmask)    = trailing_zeros(bitmask)
-bitwidth(bitmask)  = bitsof(bitmask) - zerobits(bitmask)
-
-zerobits(bitfield) = zerobits(bitmask(bitfield))
-zerobits(bitmask)  = leading_zeros(bitmask) + trailing_zeros(bitmask)
+offset(bitmask)       = trailing_zeros(bitmask)
+bitwidth(bitmask)     = bitsof(bitmask) - surrounding_zeros(bitmask)
+bitstype(bitmask)     = typeof(bitmask)
 ```
 
 - Every bitfield is given by its *name* and its *bitmask*.
