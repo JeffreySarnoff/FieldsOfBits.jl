@@ -27,7 +27,7 @@ shifts(x::NamedBitFields) = x.shifts
 syms(x::NamedBitFields) = x.syms
 
 mask(x::NamedBitFields, i) = @inbounds x.masks[i]
-offset(x::NamedBitFields, i) = @inbounds x.shifts[i]
+shift(x::NamedBitFields, i) = @inbounds x.shifts[i]
 sym(x::NamedBitFields, i) = @inbounds x.syms[i]
 masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
 

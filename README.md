@@ -96,27 +96,27 @@ end
     ---------------------------------
     | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
     ---------------------------------
-      7   6   5   4   3   2   1   0     (offset from lsb, 0-based)
+      7   6   5   4   3   2   1   0     (shift from lsb, 0-based)
 ```
 - The bitmask for this bitfield is `0b1110_0000`.
 - The bitwidth of this bitfield is `3`, the number of bits spanned.
-- The offset of this bitfield is `5`, the position of the field's lsb.
+- The shift of this bitfield is `5`, the position of the field's lsb.
 - The Carrier of this bitfield is the type `UInt8`.
 
 ```
-offset(x::BitField)   = offset(bitmask(x))
+shift(x::BitField)   = shift(bitmask(x))
 bitwidth(x::BitField) = bitwidth(bitmask(x))
 bitstype(x::BitField) = eltype(x)
 
-offset(bitmask)       = trailing_zeros(bitmask)
+shift(bitmask)       = trailing_zeros(bitmask)
 bitwidth(bitmask)     = bitsof(bitmask) - surrounding_zeros(bitmask)
 bitstype(bitmask)     = typeof(bitmask)
 ```
 
 - Every bitfield is given by its *name* and its *bitmask*.
 - Every bitfield covers one or more adjacent bits, this extent is its *width*. 
-- Every bitfield is shifted up from the least significant bit position of carrier into the carrier by zero or more from the  lsb by zero or more bit positions, this count is its *offset*.
- [offsets are 0-based, offset=index-1].
+- Every bitfield is shifted up from the least significant bit position of carrier into the carrier by zero or more from the  lsb by zero or more bit positions, this count is its *shift*.
+ [shifts are 0-based, shift=index-1].
 
 A bitfield is a named span of bits within an unsigned bitstype. Multiple bitfields may co-reside within an unsigned bitstype.  Coresident bitfields must be non-overlapping.
 

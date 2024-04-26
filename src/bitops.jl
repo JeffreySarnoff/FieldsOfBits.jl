@@ -24,11 +24,11 @@ use negative numbers for spans to be skipped, making them unavailable
 """
 function masks_from_spans_with_skips(::Type{T}, spans::NTuple{N,<:Integer}) where {N,T<:BitInteger}
     aspans = abs.(spans)
-    aoffsets = [offsets_for_masks(aspans)...]
-    offsets = Tuple(aoffsets[map(notnegative, [spans...])])
+    ashifts = [shifts_for_masks(aspans)...]
+    shifts = Tuple(ashifts[map(notnegative, [spans...])])
     bitspans = filter(notnegative, spans)
     lsbmasks = masks_in_lsbs(T, bitspans)
-    map((lsbmask, offset) -> lsbmask << offset, lsbmasks, offsets)
+    map((lsbmask, shift) -> lsbmask << shift, lsbmasks, shifts)
 end
 
 function masklsbs(::Type{T}, nbits::Integer) where {T}
@@ -37,7 +37,7 @@ function masklsbs(::Type{T}, nbits::Integer) where {T}
     (one(T) << nbits) - one(T)
 end
 
-function offsets_for_masks(spans::NTuple{N,<:Integer}) where {N}
+function shifts_for_masks(spans::NTuple{N,<:Integer}) where {N}
     (0, cumsum(spans)[1:end-1]...)
 end
 

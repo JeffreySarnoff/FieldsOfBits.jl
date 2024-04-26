@@ -23,7 +23,7 @@ Base.fieldcount(x::BasicBitFields{N,T}) where {N,T} = N
 masks(x::BasicBitFields) = x.masks
 shifts(x::BasicBitFields) = x.shifts
 mask(x::BasicBitFields, i) = @inbounds x.masks[i]
-offset(x::BasicBitFields, i) = @inbounds x.shifts[i]
+shift(x::BasicBitFields, i) = @inbounds x.shifts[i]
 masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
 
 """
@@ -36,16 +36,16 @@ Base.eltype(x::BasicBitFields{N,T}) where {N,T} = T
 """
     masks_from_spans
 
-a negative span skips over the offset bits associated with that span
+a negative span skips over the shift bits associated with that span
 - the positioned span is made unavailable and is unused
 """
 function masks_from_spans(::Type{T}, spans::NTuple{N,I}) where {N,T<:BitInteger,I<:Signed}
     if any(map(isnegative, spans))
         return masks_from_spans_with_skips(T, spans)
     end
-    offsets = offsets_for_masks(spans)
+    shifts = shifts_for_masks(spans)
     lsbmasks = masks_in_lsbs(T, spans)
-    map((lsbmask, offset) -> lsbmask << offset, lsbmasks, offsets)
+    map((lsbmask, shift) -> lsbmask << shift, lsbmasks, shifts)
 end
 
 """
@@ -54,7 +54,7 @@ end
 obtain source shifted into the lsbs
 """
 getvalue(bf::BasicBitFields{N,T}, i, x::T) where {N,T} = 
-    (x & mask(bf, i)) >> offset(bf, i)
+    (x & mask(bf, i)) >> shift(bf, i)
 
 """
     setvalue!(BasicBitFields, i, source, newvalue)
@@ -63,7 +63,7 @@ shift the newvalue into position, replace value(x)
 """
 @inline function setvalue!(bf::BasicBitFields{N,T}, i, x::T, newvalue) where {N,T}
      newval = isa(newvalue, T) ? newvalue : convert(T, newvalue)
-     newval = (newval & masklsbs(bf, i)) << offset(bf, i)
+     newval = (newval & masklsbs(bf, i)) << shift(bf, i)
      x = x & ~mask(bf, i)
      x | newval
 end
