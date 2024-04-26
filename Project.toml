@@ -4,8 +4,10 @@ uuid = "a0639507-46c3-49fc-9bf1-de2eca3b28da"
 version = "0.1.0"
 
 [deps]
+Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 TupleTools = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 
 [compat]
+Static = ">= 0.8"
 TupleTools = "1.5"
 julia = "1.10"

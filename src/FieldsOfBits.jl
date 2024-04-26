@@ -4,13 +4,35 @@ export BitMask, BitField, Carrier,
        BitFields, NT
 
 using Base: BitUnsigned, BitInteger
+using Static
 import TupleTools as TT
 
 bitsof(::Type{T}) where {T} = sizeof(T) << 3
 bitsof(x::T) where {T} = bitsof(T)
 
+"""
+    notnegative(x)
+
+relatively more performant than `x >= 0`
+- both 0.0 and -0.0 are considered nonnegative
+- use !signbit(x) to map 0.0 to true, -0.0 to false
+"""
+notnegative(x::T) where {T} = x === abs(x)
+
+"""
+    isnegative(x)
+
+can be more performant than `x < 0`
+- both 0.0 and -0.0 are considered nonnegative
+- use signbit(x) to map 0.0 to true, -0.0 to false
+"""
+isnegative(x::T) where {T} = x !== abs(x) && x !== zero(T)
+
+
 include("bitops.jl")
 include("bitfield.jl")
+include("basic_bitfields.jl")
+include("named_bitfields.jl")
 
 
 abstract type Carrier{T<:BitUnsigned} end

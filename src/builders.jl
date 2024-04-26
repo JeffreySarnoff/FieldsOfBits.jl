@@ -26,9 +26,9 @@ function unsafe_overlap(nt::NamedTuple)
 end
 
 const UINTs = (UInt8, UInt8, UInt8, UInt16, UInt32, UInt64, UInt128)
-        
+
 function uintfor(nt::NamedTuple)
-    mx = last(values(snt)[end])
+    mx = last(values(nt)[end])
     UINTs[ceil(Int, log2(mx))]
 end
 
