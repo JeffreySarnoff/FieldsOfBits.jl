@@ -1,20 +1,25 @@
-struct BitFieldSpec{T<:Base.BitUnsigned} <: Unsigned
-    mask::T
-    shift::UInt16
-    width::UInt16
-    name::Symbol
+struct BitFields{N,T<:BitInteger} <: Integer
+    value::T
+    fields::NamedBitFields{N,T}
 end
 
-mask(x::BitFieldSpec) = x.mask
-shift(x::BitFieldSpec) = x.shift
-masklsbs(x::BitFieldSpec) = (x.mask) >> x.shift
-width(x::BitFieldSpec) = x.width
-name(x::BitFieldSpec) = x.name
+value(x::BitFields) = x.value
+fields(x::BitFields) = x.fields
+masks(x::BitFields) = x.fields.masks
+shifts(x::BitFieldSpec) = x.fields.shifts
+names(x::BitFieldSpec) = x.fields.names
 
-Base.eltype(x::BitFieldSpec{T}) where {T} = T
+mask(x::BitFields, i) = @inbounds masks(x)[i]
+shift(x::BitFields, i) = @inbounds shift(x)[i]
+name(x::BitFields, i) = @inbounds name(x)[i]
 
-Base.leading_zeros(x::BitFieldSpec) = leading_zeros(mask(x))
-Base.trailing_zeros(x::BitFieldSpec) = shift(x)
+masklsbs(x::BitFields, i) = mask(x, i) >> shift(x, i)
+bitwidth(x::BitFields{N,T}, i) where {N,T} = bitsof(T) - leading_zeros(masklsbs(x, i))
+
+Base.eltype(x::BitFields{N,T}) where {N,T} = T
+
+
+
 
 function BitFieldSpec(name::Symbol, mask::T) where {T<:Base.BitUnsigned}
     shift = UInt16(trailing_zeros(mask))

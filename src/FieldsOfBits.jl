@@ -40,6 +40,7 @@ include("bitops.jl")
 include("bitfield.jl")
 include("basic_bitfields.jl")
 include("named_bitfields.jl")
+include("bitfields.jl")
 
 
 abstract type Carrier{T<:BitUnsigned} end
