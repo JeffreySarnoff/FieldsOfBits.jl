@@ -20,11 +20,12 @@ end
 
 Base.fieldcount(x::BasicBitFields{N,T}) where {N,T} = N
 
-masks(x::BasicBitFields) = x.masks
-shifts(x::BasicBitFields) = x.shifts
-mask(x::BasicBitFields, i) = @inbounds x.masks[i]
-shift(x::BasicBitFields, i) = @inbounds x.shifts[i]
-masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
+masks(x::BasicBitFields) = getfield(x, :masks)
+shifts(x::BasicBitFields) = getfield(x, :shifts)
+
+mask(x::BasicBitFields, i) = @inbounds masks(x)[i]
+shift(x::BasicBitFields, i) = @inbounds shifts(x)[i]
+masklsbs(x::BasicBitFields, i) = @inbounds masks(x)[i] >> shifts(x)[i]
 
 """
     eltype(_)

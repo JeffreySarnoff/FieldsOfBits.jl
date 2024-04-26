@@ -22,14 +22,14 @@ end
 
 Base.fieldcount(x::NamedBitFields{N,T}) where {N,T} = N
 
-masks(x::NamedBitFields) = x.masks
-shifts(x::NamedBitFields) = x.shifts
-syms(x::NamedBitFields) = x.syms
+masks(x::NamedBitFields) = getfield(x, :masks)
+shifts(x::NamedBitFields) = getfield(x, :shifts)
+syms(x::NamedBitFields) = getfield(x. :syms)
 
-mask(x::NamedBitFields, i) = @inbounds x.masks[i]
-shift(x::NamedBitFields, i) = @inbounds x.shifts[i]
-sym(x::NamedBitFields, i) = @inbounds x.syms[i]
-masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
+mask(x::NamedBitFields, i) = @inbounds masks(x)[i]
+shift(x::NamedBitFields, i) = @inbounds shifts(x)[i]
+sym(x::NamedBitFields, i) = @inbounds syms(x)[i]
+masklsbs(x::BasicBitFields, i) = @inbounds masks(x)[i] >> shifts(x)[i]
 
 function Base.NamedTuple(x::NamedBitFields{N,T}) where {N,T}
     NamedTuple{syms(x)}(collect(zip(masks(x), shifts(x))))
