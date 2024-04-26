@@ -9,7 +9,7 @@ import TupleTools as TT
 
 const Masks = static(1)
 const Shifts = static(2)
-const Names = static(3)
+const Syms = static(3)
 
 const Mask = static(1)
 const Shift = static(2)
@@ -35,6 +35,15 @@ can be more performant than `x < 0`
 """
 isnegative(x::T) where {T} = x !== abs(x) && x !== zero(T)
 
+const zerostr = "00000000000000000000000000000000"
+
+function hexstring(x::Unsigned)
+    hexstr = string(x, base=16)
+    nhexdigits = length(hexstr)
+    nzeros = max(2, nextpow(2, nhexdigits)) - nhexdigits
+    zs = zerostr[1:nzeros]
+    "0x" * zs * hexstr
+end
 
 include("bitops.jl")
 include("bitfield.jl")

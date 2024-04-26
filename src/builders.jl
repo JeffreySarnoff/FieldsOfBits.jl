@@ -1,10 +1,10 @@
 """
-    NamedNTuple( symnames::NTuple{N, Symbol}, ::T) where {N,T}
+    NamedNTuple( syms::NTuple{N, Symbol}, ::T) where {N,T}
 
 NamedNTuple((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
 """
-function NamedNTuple(symnames::NTuple{N, Symbol}, ::Type{T}) where {N,T}
-    NamedTuple{symnames, NTuple{N,T}}
+function NamedNTuple(syms::NTuple{N, Symbol}, ::Type{T}) where {N,T}
+    NamedTuple{syms, NTuple{N,T}}
 end
 
 function Base.sort(nt::NamedTuple; rev::Bool=false)

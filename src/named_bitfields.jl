@@ -32,10 +32,10 @@ sym(x::NamedBitFields, i) = @inbounds x.syms[i]
 masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
 
 function Base.NamedTuple(x::NamedBitFields{N,T}) where {N,T}
-    NamedTuple{names(x)}( collect(zip(masks(x), shifts(x))))
+    NamedTuple{syms(x)}(collect(zip(masks(x), shifts(x))))
 end
 
-function Base.show(io:IO, x::NamedBitFields{N,T}) where {N,T}
+function Base.show(io::IO, x::NamedBitFields{N,T}) where {N,T}
     str = string(NamedTuple(x))
     print(io, str)
 end
