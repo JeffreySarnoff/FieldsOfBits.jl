@@ -5,7 +5,7 @@ import TupleTools as TT
 
 const Masks = static(1)
 const Shifts = static(2)
-const Syms = static(3)
+const Ids = static(3)
 
 const Mask = static(1)
 const Shift = static(2)
@@ -41,6 +41,46 @@ function hexstring(x::Unsigned)
     "0x" * zs * hexstr
 end
 
+# =====================
+
+surrounding_zeros(x) = leading_zeros(x) + trailing_zeros(x)
+
+"""
+    mutable struct BitField
+
+- mutable field `value`
+- const field `mask`
+"""
+struct BitField{T<:Base.BitInteger}
+    mask::T
+    shift::Int8
+end
+
+mask(x::BitField) = getfield(x, 1)
+shift(x::BitField) = getfield(x, 2)
+masklsbs(x::BitField) = mask(x) >> shift(x)
+width(x::BitField{T}) where {T} = bitsof(T) - surrounding_zeros(mask(x))
+
+BitField(mask::T) where {T<:Base.BitUnsigned} =
+    BitField{T}(mask, trailing_zeros(mask))
+
+function Base.copy(x::BitField{T}) where {T}
+    BitField(mask(x), shift(x))
+end
+
+Base.eltype(x::BitField{T}) where {T} = T
+
+function Base.show(io::IO, x::BitField)
+    str = string(x)
+    print(io, str)
+end
+
+function Base.string(x::BitField)
+    string("BitField(", hexstring(mask(x)), ")")
+end
+
+# ================================
+
 """
     struct BasicBitFields
 
@@ -63,11 +103,12 @@ end
 
 Base.fieldcount(x::BasicBitFields{N,T}) where {N,T} = N
 
-masks(x::BasicBitFields) = x.masks
-shifts(x::BasicBitFields) = x.shifts
-mask(x::BasicBitFields, i) = @inbounds x.masks[i]
-shift(x::BasicBitFields, i) = @inbounds x.shifts[i]
-masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
+masks(x::BasicBitFields) = getfield(x, :masks)
+shifts(x::BasicBitFields) = getfield(x, :shifts)
+
+mask(x::BasicBitFields, i) = @inbounds masks(x)[i]
+shift(x::BasicBitFields, i) = @inbounds shifts(x)[i]
+masklsbs(x::BasicBitFields, i) = @inbounds masks(x)[i] >> shifts(x)[i]
 
 """
     eltype(_)
@@ -91,6 +132,29 @@ function masks_from_spans(::Type{T}, spans::NTuple{N,I}) where {N,T<:BitInteger,
     map((lsbmask, shift) -> lsbmask << shift, lsbmasks, shifts)
 end
 
+function masks_from_spans_with_skips(::Type{T}, spans::NTuple{N,<:Integer}) where {N,T<:BitInteger}
+    aspans = abs.(spans)
+    aoffsets = [offsets_for_masks(aspans)...]
+    offsets = Tuple(aoffsets[map(notnegative, [spans...])])
+    bitspans = filter(notnegative, spans)
+    lsbmasks = masks_in_lsbs(T, bitspans)
+    map((lsbmask, offset) -> lsbmask << offset, lsbmasks, offsets)
+end
+
+function offsets_for_masks(spans::NTuple{N,<:Integer}) where {N}
+    (0, cumsum(spans)[1:end-1]...)
+end
+
+function masks_in_lsbs(::Type{T}, spans::NTuple{N,<:Integer}) where {N,T}
+    map(a -> masklsbs(T, a), spans)
+end
+
+function masklsbs(::Type{T}, nbits::Integer) where {T}
+    nbits > bitsof(T) && throw(DomainError("nbits ($nbits) must be <= $(bitsof(T))"))
+    nbits == bitsof(T) && return onebits(T)
+    (one(T) << nbits) - one(T)
+end
+
 """
     getvalue(BasicBitFields, i, source)
 
@@ -111,41 +175,43 @@ shift the newvalue into position, replace value(x)
     x | newval
 end
 
+# ======================================
+
 """
     struct NamedBitFields
 
 - const field `masks`
 - const field `shifts`
-- const field `syms`
+- const field `ids`
 """
 struct NamedBitFields{N,T<:BitInteger}
     masks::NTuple{N,T}
     shifts::NTuple{N,Int8}
-    syms::NTuple{N,Symbol}
+    ids::NTuple{N,Symbol}
 end
 
-function NamedBitFields(::Type{T}, syms::NTuple{N,Symbol}, bitmasks::NTuple{N,<:Unsigned}) where {N,T<:BitInteger}
+function NamedBitFields(::Type{T}, ids::NTuple{N,Symbol}, bitmasks::NTuple{N,<:Unsigned}) where {N,T<:BitInteger}
     bitshifts = map(a -> Int8(trailing_zeros(a)), bitmasks)
-    NamedBitFields{N,T}(bitmasks, bitshifts, syms)
+    NamedBitFields{N,T}(bitmasks, bitshifts, ids)
 end
 
-function NamedBitFields(::Type{T}, syms::NTuple{N,Symbol}, bitspans::NTuple{N,<:Signed}) where {N,T}
-    NamedBitFields(T, masks_from_spans(T, bitspans), syms)
+function NamedBitFields(::Type{T}, ids::NTuple{N,Symbol}, bitspans::NTuple{N,<:Signed}) where {N,T}
+    NamedBitFields(T, masks_from_spans(T, bitspans), ids)
 end
 
 Base.fieldcount(x::NamedBitFields{N,T}) where {N,T} = N
 
-masks(x::NamedBitFields) = x.masks
-shifts(x::NamedBitFields) = x.shifts
-syms(x::NamedBitFields) = x.syms
+masks(x::NamedBitFields) = getfield(x, :masks)
+shifts(x::NamedBitFields) = getfield(x, :shifts)
+ids(x::NamedBitFields) = getfield(x.:ids)
 
-mask(x::NamedBitFields, i) = @inbounds x.masks[i]
-shift(x::NamedBitFields, i) = @inbounds x.shifts[i]
-sym(x::NamedBitFields, i) = @inbounds x.syms[i]
-masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
+mask(x::NamedBitFields, i) = @inbounds masks(x)[i]
+shift(x::NamedBitFields, i) = @inbounds shifts(x)[i]
+sym(x::NamedBitFields, i) = @inbounds ids(x)[i]
+masklsbs(x::BasicBitFields, i) = @inbounds masks(x)[i] >> shifts(x)[i]
 
 function Base.NamedTuple(x::NamedBitFields{N,T}) where {N,T}
-    NamedTuple{syms(x)}(collect(zip(masks(x), shifts(x))))
+    NamedTuple{ids(x)}(collect(zip(masks(x), shifts(x))))
 end
 
 function Base.show(io::IO, x::NamedBitFields{N,T}) where {N,T}
@@ -153,25 +219,27 @@ function Base.show(io::IO, x::NamedBitFields{N,T}) where {N,T}
     print(io, str)
 end
 
+# =========================
+
 mutable struct BitFields{N,T<:BitInteger} <: Integer
     value::T
-    const syms::NTuple{N,Symbol}
+    const ids::NTuple{N,Symbol}
     const masks::NTuple{N,T}
     const shifts::NTuple{N,Int8}
 end
 
 # field indices
 const BFvalue = 1
-const BFsyms = 2
+const BFids = 2
 const BFmasks = 3
 const BFshifts = 4
 
 value(x::BitFields) = getfield(x, BFvalue)
-syms(x::BitFields) = getfield(x, BFsyms)
+ids(x::BitFields) = getfield(x, BFids)
 masks(x::BitFields) = getfield(x, BFmasks)
 shifts(x::BitFields) = getfield(x, BFshifts)
 
-sym(x::BitFields, i) = @inbounds syms(x)[i]
+sym(x::BitFields, i) = @inbounds ids(x)[i]
 mask(x::BitFields, i) = @inbounds masks(x)[i]
 shift(x::BitFields, i) = @inbounds shifts(x)[i]
 
@@ -181,7 +249,7 @@ bitwidth(x::BitFields{N,T}, i) where {N,T} = bitsof(T) - leading_zeros(masklsbs(
 Base.eltype(x::BitFields{N,T}) where {N,T} = T
 
 function specify(bfs::BitFields{N,T}, sym::Symbol) where {N,T}
-    symbols = syms(bfs)
+    symbols = ids(bfs)
     idx = 1
     while idx <= N
         if sym === symbols[idx]
@@ -197,7 +265,7 @@ end
 end
 
 function Base.getproperty(bfs::BitFields{N,T}, sym::Symbol) where {N,T}
-    symbols = syms(bfs)
+    symbols = ids(bfs)
     idx = 1
     while idx <= N
         if sym === symbols[idx]
@@ -215,7 +283,7 @@ end
 end
 
 function Base.setproperty!(bfs::BitFields{N,T}, sym::Symbol, newfieldvalue::T) where {N,T}
-    symbols = syms(bfs)
+    symbols = ids(bfs)
     idx = 1
     while idx <= N
         if sym === symbols[idx]
@@ -229,19 +297,20 @@ function Base.setproperty!(bfs::BitFields{N,T}, sym::Symbol, newfieldvalue::T) w
 end
 
 BitFields(specs::NamedBitFields{N,T}) where {N,T} =
-    BitFields{N,T}(zero(T), specs.syms, specs.masks, specs.shifts)
+    BitFields{N,T}(zero(T), specs.ids, specs.masks, specs.shifts)
 
 function BitFields(::Type{T}, specs::NamedBitFields{N,T}) where {N,T}
-    BitFields{N,T}(zero(T), specs.syms, specs.masks, specs.shifts)
+    BitFields{N,T}(zero(T), specs.ids, specs.masks, specs.shifts)
 end
 
-function BitFields(::Type{T}, syms::NTuple{N,Symbol}, bitmasks::NTuple{N,<:Unsigned}) where {N,T<:BitInteger}
-    specs = NamedBitFields(T, syms, bitmasks)
-    BitFields{N,T}(zero(T), specs.syms, specs.masks, specs.shifts)
+function BitFields(::Type{T}, ids::NTuple{N,Symbol}, bitmasks::NTuple{N,<:Unsigned}) where {N,T<:BitInteger}
+    specs = NamedBitFields(T, ids, bitmasks)
+    BitFields{N,T}(zero(T), specs.ids, specs.masks, specs.shifts)
 end
 
-function BitFields(::Type{T}, syms::NTuple{N,Symbol}, bitspans::NTuple{N,<:Signed}) where {N,T}
-    specs = NamedBitFields(T, syms, bitspans)
-    BitFields{N,T}(zero(T), specs.syms, specs.masks, specs.shifts)
+function BitFields(::Type{T}, ids::NTuple{N,Symbol}, bitspans::NTuple{N,<:Signed}) where {N,T}
+    specs = NamedBitFields(T, ids, bitspans)
+    BitFields{N,T}(zero(T), specs.ids, specs.masks, specs.shifts)
 end
 
+# ============================

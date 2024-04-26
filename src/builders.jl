@@ -1,22 +1,22 @@
 """
-    NamedNTuple( syms::NTuple{N, Symbol}, ::T) where {N,T}
+    NamedNTuple( ids::NTuple{N, Symbol}, ::T) where {N,T}
 
 NamedNTuple((:a, :b), ::Int) ↦ NamedTuple{(:a, :b), {Int, Int}}
 """
-function NamedNTuple(syms::NTuple{N, Symbol}, ::Type{T}) where {N,T}
-    NamedTuple{syms, NTuple{N,T}}
+function NamedNTuple(ids::NTuple{N, Symbol}, ::Type{T}) where {N,T}
+    NamedTuple{ids, NTuple{N,T}}
 end
 
 function Base.sort(nt::NamedTuple; rev::Bool=false)
-    syms = keys(nt)
+    ids = keys(nt)
     vals = values(nt)
     sperm = TT.sortperm(vals)
     if rev
         sperm = reverse(sperm)
     end
-    sortedsyms = Tuple([syms[i] for i in sperm])
+    sortedids = Tuple([ids[i] for i in sperm])
     sortedvals = [vals[i] for i in sperm]
-    NamedTuple{sortedsyms}(sortedvals)
+    NamedTuple{sortedids}(sortedvals)
 end
 
 # UNCHECKED PRECONDITION nt = sort(nt)

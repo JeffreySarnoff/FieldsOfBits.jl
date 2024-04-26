@@ -49,6 +49,29 @@ function masks_from_spans(::Type{T}, spans::NTuple{N,I}) where {N,T<:BitInteger,
     map((lsbmask, shift) -> lsbmask << shift, lsbmasks, shifts)
 end
 
+function masks_from_spans_with_skips(::Type{T}, spans::NTuple{N,<:Integer}) where {N,T<:BitInteger}
+    aspans = abs.(spans)
+    aoffsets = [shifts_for_masks(aspans)...]
+    offsets = Tuple(aoffsets[map(notnegative, [spans...])])
+    bitspans = filter(notnegative, spans)
+    lsbmasks = masks_in_lsbs(T, bitspans)
+    map((lsbmask, offset) -> lsbmask << offset, lsbmasks, offsets)
+end
+
+function shifts_for_masks(spans::NTuple{N,<:Integer}) where {N}
+    (0, cumsum(spans)[1:end-1]...)
+end
+
+function masks_in_lsbs(::Type{T}, spans::NTuple{N,<:Integer}) where {N,T}
+    map(a -> masklsbs(T, a), spans)
+end
+
+function masklsbs(::Type{T}, nbits::Integer) where {T}
+    nbits > bitsof(T) && throw(DomainError("nbits ($nbits) must be <= $(bitsof(T))"))
+    nbits == bitsof(T) && return onebits(T)
+    (one(T) << nbits) - one(T)
+end
+
 """
     getvalue(BasicBitFields, i, source)
 

@@ -9,7 +9,7 @@ import TupleTools as TT
 
 const Masks = static(1)
 const Shifts = static(2)
-const Syms = static(3)
+const Ids = static(3)
 
 const Mask = static(1)
 const Shift = static(2)
