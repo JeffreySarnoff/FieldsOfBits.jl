@@ -21,8 +21,10 @@ end
 Base.fieldcount(x::BasicBitFields{N,T}) where {N,T} = N
 
 masks(x::BasicBitFields) = x.masks
+shifts(x::BasicBitFields) = x.shifts
 mask(x::BasicBitFields, i) = @inbounds x.masks[i]
 offset(x::BasicBitFields, i) = @inbounds x.shifts[i]
+masklsbs(x::BasicBitFields, i) = @inbounds x.masks[i] >> x.shifts[i]
 
 """
     eltype(_)
@@ -59,11 +61,11 @@ getvalue(bf::BasicBitFields{N,T}, i, x::T) where {N,T} =
 
 shift the newvalue into position, replace value(x)
 """
-@inline function setvalue!(x::BasicBitFields{N,T}, i, source::T, newvalue) where {N,T}
+@inline function setvalue!(bf::BasicBitFields{N,T}, i, x::T, newvalue) where {N,T}
      newval = isa(newvalue, T) ? newvalue : convert(T, newvalue)
-     newval = newval & (mask(x, i) >> trailing_zeros(mask(x, i)))
-     newval = newval << trailing_zeros(mask(x,i))
-     x.fields  = (x.fields & ~mask(x,i)) | newval
+     newval = (newval & masklsbs(bf, i)) << offset(bf, i)
+     x = x & ~mask(bf, i)
+     x | newval
 end
 
 

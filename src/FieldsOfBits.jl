@@ -7,6 +7,13 @@ using Base: BitUnsigned, BitInteger
 using Static
 import TupleTools as TT
 
+const Masks = static(1)
+const Shifts = static(2)
+const Names = static(3)
+
+const Mask = static(1)
+const Shift = static(2)
+
 bitsof(::Type{T}) where {T} = sizeof(T) << 3
 bitsof(x::T) where {T} = bitsof(T)
 
