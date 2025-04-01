@@ -75,8 +75,8 @@ end
 shift the newvalue into position, replace value(x)
 """
 @inline function setvalue!(x::BitField{T}, newvalue::T) where {T}
-    newval = (newvalue & (mask(x) >> trailing_zeros(mask(x))))
-    x.value = newvalye << trailing_zeros(mask(x))
+    newval = (newvalue & (mask(x) >> shift(x)))
+    x.value = newvalye << shift(x)
 end
 
 """
