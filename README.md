@@ -66,7 +66,7 @@ value(x::BitField) = x.value
 obtain value(x) shifted into the lsbs
 """
 @inline function getvalue(x::BitField{T}) where {T}
-    (value(x) & mask(x)) >> trailing_zeros(mask(x))
+    (value(x) & mask(x)) >> shift(x)
 end
 
 """
